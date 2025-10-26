@@ -1,0 +1,58 @@
+# ===============================
+# IntelliJ IDEA / JetBrains
+# ===============================
+.idea/
+*.iml
+*.iws
+out/
+*.ipr
+
+# ===============================
+# Gradle / Kotlin / Java
+# ===============================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.gradle-cache/
+.gradle-local/
+# 生成的 jar / class
+*.class
+*.jar
+*.war
+*.ear
+
+# ===============================
+# OS / IDE
+# ===============================
+.DS_Store
+Thumbs.db
+*.log
+
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+*.egg-info/
+dist/
+build/
+*.pytest_cache/
+
+# ===============================
+# VSCode (如果你也用 VSCode)
+# ===============================
+.vscode/
+
+# ===============================
+# Local files / secrets
+# ===============================
+*.env
+*.local
+*.db
+*.sqlite3
+/data/pdfs/
+data/faiss_index/

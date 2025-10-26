@@ -1,0 +1,43 @@
+<idea-plugin>
+    <id>com.example.smartta</id>
+    <name>SmartTA</name>
+    <version>1.0.0</version>
+    <vendor email="you@example.com">SmartTA Team</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.lang</depends>
+
+    <description>
+        SmartTA is an intelligent Teaching Assistant plugin for the Java Enterprise Application Development course.
+        It provides RAG-based Q&amp;A with source citation and context-aware support directly inside IntelliJ IDEA.
+    </description>
+
+    <!-- 注册 Tool Window -->
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="SmartTA"
+                    anchor="right"
+                    factoryClass="com.example.smartta.SmartTAToolWindowFactory"/>
+    </extensions>
+
+    <!-- 注册右键菜单动作 -->
+    <actions>
+        <action id="AskSmartTA"
+                class="com.example.smartta.AskSmartTAAction"
+                text="Ask SmartTA about this code"
+                description="Ask SmartTA for help with selected code"
+                popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="UploadSmartTA"
+                class="com.example.smartta.UploadSmartTAAction"
+                text="Upload to SmartTA"
+                description="Upload selected files or folders to SmartTA knowledge base"
+                popup="true">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+    </actions>
+
+
+</idea-plugin>
