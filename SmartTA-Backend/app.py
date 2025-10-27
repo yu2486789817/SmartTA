@@ -1,14 +1,20 @@
 import uuid
 import os
 from io import BytesIO
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from collections import defaultdict, deque
 from rag_engine import retriever, generator
 from fastapi import UploadFile, File, Form
 from rag_engine.preprocessor import preprocess_pdfs
+from rag_engine.doc_generator import generate_markdown_summary
 
-app = FastAPI(title="SmartTA Backend")
+"""
+启动命令：uvicorn app:app --reload --host 0.0.0.0 --port 8000
+"""
+
+app = FastAPI(title="SmartTA Backend" , max_request_size=100 * 1024 * 1024)
+
 PDF_DIR = os.getenv("PDF_DIR", "./data/pdfs")
 # Global conversation history
 conversation_history = defaultdict(lambda: deque(maxlen=5))
@@ -69,3 +75,15 @@ async def add_pdfs(
 
     else:
         return {"error": "必须提供文件或目录路径。"}
+
+@app.post("/generate_docs")
+async def generate_docs(request: Request):
+    """
+    接收 IntelliJ 插件上传的项目结构数据，调用 LLM 生成 Markdown 文档。
+    """
+    try:
+        data = await request.json()
+        markdown = generate_markdown_summary(data)
+        return {"markdown": markdown}
+    except Exception as e:
+        return {"error": str(e)}

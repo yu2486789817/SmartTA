@@ -37,6 +37,14 @@
                 popup="true">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
+
+        <action id="GenerateDocs"
+                class="com.example.smartta.docs.GenerateDocsAction"
+                text="Generate Project Docs"
+                description="Automatically generate structured documentation for this project"
+                popup="true">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
     </actions>
 
 
