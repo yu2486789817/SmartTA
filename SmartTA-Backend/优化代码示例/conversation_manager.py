@@ -4,8 +4,8 @@
 """
 import threading
 from collections import deque
-from typing import Dict, Optional
-from config import settings
+from typing import Dict
+from rag_engine.config import settings
 
 
 class ConversationManager:
@@ -90,4 +90,5 @@ class ConversationManager:
 
 # 全局会话管理器
 conversation_manager = ConversationManager()
+
 

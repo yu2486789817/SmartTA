@@ -1,17 +1,26 @@
-import os
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+"""
+检索模块 - 使用缓存的模型管理器
+"""
+from rag_engine.model_manager import model_manager
+from rag_engine.config import settings
 
-DATA_DIR = os.path.join(os.getcwd(), "data")
-DB_PATH = os.path.join(DATA_DIR, "faiss_index")
 
-def load_db():
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    db = FAISS.load_local(DB_PATH, embeddings, allow_dangerous_deserialization=True)
-    return db
-
-def retrieve_context(query, top_k=3):
-    db = load_db()
+def retrieve_context(query, top_k=None):
+    """
+    检索上下文，使用缓存的数据库实例（避免重复加载）
+    
+    Args:
+        query: 查询文本
+        top_k: 返回的文档数量，默认使用配置值
+    
+    Returns:
+        匹配的文档列表
+    """
+    if top_k is None:
+        top_k = settings.top_k
+    
+    # 使用缓存的数据库实例
+    db = model_manager.get_db()
     docs = db.similarity_search(query, k=top_k)
 
     # 返回字典列表，每个包含 source、page、content
@@ -23,6 +32,12 @@ def retrieve_context(query, top_k=3):
         }
         for d in docs
     ]
+
+
+# 保留旧的load_db函数以兼容旧代码（已弃用）
+def load_db():
+    """已弃用：请使用model_manager.get_db()"""
+    return model_manager.get_db()
 
 
 if __name__ == "__main__":

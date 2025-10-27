@@ -1,34 +1,55 @@
-# generator.py
+"""
+生成器模块 - 使用缓存的LLM和会话管理器
+"""
 import os
+from functools import lru_cache
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
-from collections import defaultdict, deque
+from rag_engine.config import settings
+from rag_engine.conversation_manager import conversation_manager
 
+# 加载环境变量
 load_dotenv()
 
 # === DeepSeek API Configuration ===
 os.environ["OPENAI_API_KEY"] = os.getenv("DEEPSEEK_API_KEY")
 os.environ["OPENAI_API_BASE"] = os.getenv("DEEPSEEK_BASE_URL")
 
-# Global conversation history
-conversation_history = defaultdict(lambda: deque(maxlen=5))
+
+@lru_cache(maxsize=1)
+def get_llm():
+    """
+    获取缓存的LLM实例（使用LRU缓存避免重复创建）
+    
+    Returns:
+        ChatOpenAI实例
+    """
+    return ChatOpenAI(
+        model=settings.llm_model,
+        temperature=settings.llm_temperature,
+        max_tokens=settings.llm_max_tokens
+    )
+
 
 def get_answer(query: str, retrieved_chunks: list, context_code: str = "", session_id: str = "default") -> str:
     """
     Generate an answer using the DeepSeek model.
     Includes session-based conversation history.
+    
+    Args:
+        query: 用户问题
+        retrieved_chunks: 检索到的文档块
+        context_code: 代码上下文
+        session_id: 会话ID
+    
+    Returns:
+        生成的答案
     """
-    llm = ChatOpenAI(
-        model="deepseek-chat",
-        temperature=0.6,
-        max_tokens=1024
-    )
+    # 使用缓存的LLM实例
+    llm = get_llm()
 
-    # Retrieve session-specific history
-    history = conversation_history[session_id]
-    history_text = "\n".join([
-        f"User: {q}\nSmartTA: {a}" for q, a in history
-    ])
+    # 使用会话管理器获取历史
+    history_text = conversation_manager.format_history(session_id)
 
     # Combine course material text
     context_text = "\n\n".join([
@@ -62,7 +83,7 @@ def get_answer(query: str, retrieved_chunks: list, context_code: str = "", sessi
     # Generate response
     response = llm.invoke(prompt)
 
-    # Update session history
-    conversation_history[session_id].append((query, response.content))
+    # 使用会话管理器更新历史
+    conversation_manager.append(session_id, query, response.content)
 
     return response.content

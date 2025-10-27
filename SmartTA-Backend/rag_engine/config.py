@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     api_port: int = 8000
     
     # === 模型配置 ===
-    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model: str = "sentence-transformers/all-mpnet-base-v2"
     llm_model: str = "deepseek-chat"
     llm_temperature: float = 0.6
     llm_max_tokens: int = 1024
@@ -48,6 +48,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
 
     def __post_init__(self):
         """配置后处理"""
