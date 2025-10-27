@@ -4,7 +4,7 @@ from io import BytesIO
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from collections import defaultdict, deque
-from rag_engine import retriever, generator
+from rag_engine import retriever, generator, test_generator
 from fastapi import UploadFile, File, Form
 from rag_engine.preprocessor import preprocess_pdfs
 from rag_engine.doc_generator import generate_markdown_summary
@@ -87,3 +87,27 @@ async def generate_docs(request: Request):
         return {"markdown": markdown}
     except Exception as e:
         return {"error": str(e)}
+    
+@app.post("/generate_test")
+async def generate_test_endpoint(request: dict):
+    """
+    生成单元测试的端点
+    """
+    try:
+        requirement = request.get("requirement", "")
+        context_code = request.get("context_code", "")
+        class_name = request.get("class_name", "")
+        method_name = request.get("method_name", "")
+        
+        if not requirement or not context_code:
+            return {"error": "测试需求和代码上下文不能为空"}
+        
+        test_code = test_generator.generate_unit_test(requirement, context_code, class_name, method_name)
+        
+        return {
+            "test_code": test_code,
+            "status": "success"
+        }
+        
+    except Exception as e:
+        return {"error": f"生成测试失败: {str(e)}"}
