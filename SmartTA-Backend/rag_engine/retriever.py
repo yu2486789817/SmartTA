@@ -34,11 +34,5 @@ def retrieve_context(query, top_k=None):
     ]
 
 
-# 保留旧的load_db函数以兼容旧代码（已弃用）
-def load_db():
-    """已弃用：请使用model_manager.get_db()"""
-    return model_manager.get_db()
-
-
 if __name__ == "__main__":
     print(retrieve_context("操作系统中的虚拟内存机制"))

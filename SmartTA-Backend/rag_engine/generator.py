@@ -80,7 +80,7 @@ def get_answer(query: str, retrieved_chunks: list, context_code: str = "", sessi
 
 """
 
-    # Generate response
+    # 调用LLM生成答案
     response = llm.invoke(prompt)
 
     # 使用会话管理器更新历史

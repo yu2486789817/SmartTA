@@ -44,24 +44,24 @@ PDF_DIR = os.getenv("PDF_DIR", "./data/pdfs")
 class QuestionRequest(BaseModel):
     question: str
     context_code: str = ""
-    session_id: str = None  # Allow None for auto-generation
+    session_id: str = None  # 可选的会话ID
 
 class AnswerResponse(BaseModel):
     answer: str
-    session_id: str  # Include session_id in the response
+    session_id: str  # 会话ID
 
 @app.post("/ask", response_model=AnswerResponse)
 def ask(qa: QuestionRequest):
     """提问接口 - 使用优化的会话管理器"""
     try:
-        # Auto-generate session_id if not provided
+        # 生成或使用现有的会话ID
         session_id = qa.session_id or str(uuid.uuid4())
         logger.info(f"处理请求 - Session ID: {session_id}, Question: {qa.question[:50]}...")
 
-        # Retrieve course materials
+        # 检索相关上下文
         retrieved_chunks = retriever.retrieve_context(qa.question)
 
-        # Generate answer
+        # 生成答案
         answer = generator.get_answer(
             query=qa.question,
             retrieved_chunks=retrieved_chunks,
@@ -71,7 +71,7 @@ def ask(qa: QuestionRequest):
 
         logger.info(f"回答生成完成 - Session ID: {session_id}")
         
-        # Return the answer and session_id
+        # 返回答案和会话ID
         return {"answer": answer, "session_id": session_id}
     
     except Exception as e:

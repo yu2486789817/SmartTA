@@ -1,6 +1,5 @@
 package com.example.smartta
 
-import com.google.gson.Gson
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -9,7 +8,6 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiClass
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class GenerateTestAction : AnAction() {
@@ -52,7 +50,7 @@ class GenerateTestAction : AnAction() {
             val requirement = dialog.getRequirement()
 
             if (requirement.isBlank()) {
-                ChatWindowManager.appendMessageDirect("错误: 请填写测试需求描述")
+                ChatWindowManager.sendMessage(MessageType.SYSTEM, "错误: 请填写测试需求描述")
                 return
             }
 
@@ -61,23 +59,31 @@ class GenerateTestAction : AnAction() {
             val toolWindow = toolWindowManager.getToolWindow("SmartTA")
             toolWindow?.show()
 
-            // 显示用户需求
-            ApplicationManager.getApplication().invokeLater {
-                ChatWindowManager.appendMessageDirect("You: \n生成单元测试需求: $requirement")
-                ChatWindowManager.appendMessageDirect("目标: $className${if (methodName.isNotEmpty()) ".$methodName" else ""}")
-            }
+            // 显示用户需求和目标信息
+            ChatWindowManager.sendMessage(MessageType.USER, "生成单元测试需求: $requirement")
+            ChatWindowManager.sendMessage(MessageType.SYSTEM, "目标: $className${if (methodName.isNotEmpty()) ".$methodName" else ""}")
 
             // 异步生成测试
-            ApplicationManager.getApplication().executeOnPooledThread {
-                generateTestAsync(requirement, contextCode, className, methodName) { testCode ->
-                    ApplicationManager.getApplication().invokeLater {
-                        ChatWindowManager.appendMessageDirect("SmartTA: \n生成的单元测试:\n```java\n$testCode\n```")
-                    }
+            generateTestAsync(requirement, contextCode, className, methodName) { result ->
+                // 判断结果是否为错误消息
+                val isError = result.startsWith("生成测试失败") || 
+                             result.startsWith("HTTP错误") || 
+                             result.startsWith("解析响应失败") ||
+                             result.startsWith("生成测试时出现错误")
+                
+                if (isError) {
+                    ChatWindowManager.sendMessage(MessageType.SYSTEM, result)
+                } else {
+                    ChatWindowManager.sendMessage(MessageType.SMARTTA, "生成的单元测试:\n```java\n$result\n```")
                 }
             }
         }
     }
 
+    /**
+     * 异步生成单元测试
+     * 使用共享的 HttpClient 和 Gson 以避免重复创建对象
+     */
     private fun generateTestAsync(
         requirement: String,
         contextCode: String,
@@ -93,21 +99,15 @@ class GenerateTestAction : AnAction() {
                 "method_name" to methodName
             )
 
-            val json = Gson().toJson(payload)
-            val mediaType = "application/json; charset=utf-8".toMediaType()
-            val body = json.toRequestBody(mediaType)
+            val json = SharedServices.gson.toJson(payload)
+            val body = json.toRequestBody(SharedServices.JSON_MEDIA_TYPE)
 
             val request = okhttp3.Request.Builder()
                 .url("http://localhost:8000/generate_test")
                 .post(body)
                 .build()
 
-            val client = okhttp3.OkHttpClient.Builder()
-                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
-                .readTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
-                .build()
-
-            client.newCall(request).enqueue(object : okhttp3.Callback {
+            SharedServices.httpClient.newCall(request).enqueue(object : okhttp3.Callback {
                 override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                     ApplicationManager.getApplication().invokeLater {
                         onResult("生成测试失败: ${e.message}")
@@ -120,7 +120,7 @@ class GenerateTestAction : AnAction() {
                             "HTTP错误: ${response.code}"
                         } else {
                             val responseBody = response.body?.string() ?: ""
-                            val jsonResponse = Gson().fromJson(responseBody, Map::class.java)
+                            val jsonResponse = SharedServices.gson.fromJson(responseBody, Map::class.java)
 
                             if (jsonResponse["status"] == "success") {
                                 jsonResponse["test_code"] as? String ?: "未返回测试代码"

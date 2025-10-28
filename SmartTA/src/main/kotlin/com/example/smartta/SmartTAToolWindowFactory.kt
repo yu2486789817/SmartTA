@@ -7,6 +7,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import java.awt.*
 import javax.swing.*
+import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 import javax.swing.text.StyledDocument
 
@@ -14,7 +15,7 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val chatPanel = JPanel(BorderLayout())
 
-        // ✅ 使用 JTextPane 代替 JTextArea，支持不同前缀样式
+        // 创建消息显示区域，使用 JTextPane 支持富文本样式
         val chatPane = JTextPane().apply {
             isEditable = false
             font = Font("Microsoft YaHei", Font.PLAIN, 14)
@@ -22,33 +23,47 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
         }
         val doc: StyledDocument = chatPane.styledDocument
 
-        // 样式定义
-        val youStyle = chatPane.addStyle("you", null).apply {
-            StyleConstants.setForeground(this, Color.YELLOW)
-            StyleConstants.setBold(this, true)
+        // 定义不同消息类型的样式
+        val youStyle = SimpleAttributeSet().apply {
+            StyleConstants.setForeground(this, Color(135, 206, 235)) // 天蓝色 - 用户消息
             StyleConstants.setFontSize(this, 18)
         }
-        val smarttaStyle = chatPane.addStyle("smartta", null).apply {
-            StyleConstants.setForeground(this, Color.MAGENTA)
-            StyleConstants.setBold(this, true)
+        val smarttaStyle = SimpleAttributeSet().apply {
+            StyleConstants.setForeground(this, Color(255, 182, 193)) // 浅粉色 - SmartTA 响应
             StyleConstants.setFontSize(this, 18)
+        }
+        val systemStyle = SimpleAttributeSet().apply {
+            StyleConstants.setForeground(this, Color(255, 207, 72)) // 淡橙色 - 系统消息
+            StyleConstants.setFontSize(this, 17)
         }
 
-        // 消息追加函数
+        // 消息追加函数，支持不同样式和格式
         fun appendMessage(fullMessage: String) {
             val splitIndex = fullMessage.indexOf(":") + 1
             if (splitIndex <= 0) {
-                doc.insertString(doc.length, fullMessage + "\n", null)
+                doc.insertString(doc.length, fullMessage + "\n\n", null)
             } else {
-                val prefix = fullMessage.substring(0, splitIndex)
-                val rest = fullMessage.substring(splitIndex)
+                val prefix = fullMessage.substring(0, splitIndex - 1).trim() + ":"
+                val rest = fullMessage.substring(splitIndex).trim()
+
                 val style = when {
                     prefix.startsWith("You") -> youStyle
                     prefix.startsWith("SmartTA") -> smarttaStyle
+                    prefix.startsWith("System") -> systemStyle
                     else -> null
                 }
-                doc.insertString(doc.length, prefix, style)
-                doc.insertString(doc.length, rest + "\n", null)
+
+                // 插入加粗的前缀
+                val boldStyle = style?.let { 
+                    SimpleAttributeSet(it).apply { 
+                        StyleConstants.setBold(this, true)
+                        StyleConstants.setFontSize(this, 14)
+                    }
+                }
+                doc.insertString(doc.length, prefix, boldStyle)
+                
+                // 插入换行和正文内容
+                doc.insertString(doc.length, "\n$rest\n\n", null)
             }
             chatPane.caretPosition = doc.length
         }
@@ -56,23 +71,24 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
         // 注册到 ChatWindowManager
         ChatWindowManager.chatAreaPane = chatPane
         ChatWindowManager.appendMessage = ::appendMessage
+        ChatWindowManager.setStyles(youStyle, smarttaStyle, systemStyle)
 
         val scrollPane = JBScrollPane(chatPane).apply {
             verticalScrollBarPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
             horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
         }
 
-        // 输入框
+        // 创建输入框
         val inputField = JTextField().apply {
             font = Font("Microsoft YaHei", Font.PLAIN, 14)
         }
 
-        // Ask 按钮
+        // 创建发送按钮
         val askButton = JButton("Ask").apply {
             font = Font("Segoe UI", Font.BOLD, 13)
         }
 
-        // 提问逻辑
+        // 处理用户提问逻辑
         fun sendQuestion() {
             val question = inputField.text.trim()
             if (question.isNotEmpty()) {

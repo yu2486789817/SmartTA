@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.wm.ToolWindowManager
 import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
@@ -15,7 +14,7 @@ class UploadSmartTAAction : AnAction() {
         val project = e.project ?: return
         val vFile = e.getData(com.intellij.openapi.actionSystem.CommonDataKeys.VIRTUAL_FILE) ?: return
 
-        // ✅ 自动打开 SmartTA 工具窗口
+        // 打开 SmartTA 工具窗口
         val toolWindowManager = ToolWindowManager.getInstance(project)
         val toolWindow = toolWindowManager.getToolWindow("SmartTA")
         toolWindow?.show()
@@ -24,21 +23,20 @@ class UploadSmartTAAction : AnAction() {
         val filePath = if (!isDirectory) vFile.path else null
         val directoryPath = if (isDirectory) vFile.path else null
 
+        ChatWindowManager.sendMessage(MessageType.SYSTEM, "开始上传 ${vFile.name}...")
 
-
-        ChatWindowManager.appendMessageDirect("开始上传 ${vFile.name}...")
-
+        // 在后台线程执行上传操作
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
-                val client = OkHttpClient()
                 val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
 
+                // 添加文件或目录路径
                 filePath?.let {
                     val file = File(it)
                     builder.addFormDataPart(
                         "file",
                         file.name,
-                        file.asRequestBody("application/pdf".toMediaType())
+                        file.asRequestBody(SharedServices.PDF_MEDIA_TYPE)
                     )
                 }
 
@@ -51,16 +49,23 @@ class UploadSmartTAAction : AnAction() {
                     .post(builder.build())
                     .build()
 
-                client.newCall(request).execute().use { response ->
+                SharedServices.httpClient.newCall(request).execute().use { response ->
                     val body = response.body?.string() ?: "无返回内容"
                     ApplicationManager.getApplication().invokeLater {
-                        ChatWindowManager.appendMessageDirect("上传完成: $body")
+                        // 解析后端返回的 JSON，提取友好的提示信息
+                        val message = try {
+                            val json = SharedServices.gson.fromJson(body, Map::class.java)
+                            json["message"]?.toString() ?: json.toString()
+                        } catch (e: Exception) {
+                            body
+                        }
+                        ChatWindowManager.sendMessage(MessageType.SYSTEM, message)
                     }
                 }
 
             } catch (ex: Exception) {
                 ApplicationManager.getApplication().invokeLater {
-                    ChatWindowManager.appendMessageDirect("上传失败: ${ex.message}")
+                    ChatWindowManager.sendMessage(MessageType.SYSTEM, "上传失败: ${ex.message}")
                 }
             }
         }
