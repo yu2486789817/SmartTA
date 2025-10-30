@@ -7,6 +7,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
     <depends>com.intellij.modules.lang</depends>
+    <depends>Git4Idea</depends>
 
     <description>
         SmartTA is an intelligent Teaching Assistant plugin for the Java Enterprise Application Development course.
@@ -52,6 +53,16 @@
                 description="Generate unit tests for Java code as required">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="AskSmartTA"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift T"/>
+        </action>
+
+        <action id="SmartTA.GenerateCommitMessage"
+                class="com.example.smartta.GitCommitMessageAction"
+                text="Generate Git Commit Message"
+                description="Generate conventional commit message from staged changes"
+                icon="AllIcons.Vcs.CommitNode">
+            <add-to-group group-id="Vcs.MessageActionGroup" anchor="first"/>
+            <add-to-group group-id="VcsGroups" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>
         </action>
     </actions>
 

@@ -23,6 +23,7 @@ dependencies {
 
         // Add necessary plugin dependencies for compilation here, example:
         bundledPlugin("com.intellij.java")
+        bundledPlugin("Git4Idea")
     }
     
     // HTTP 客户端依赖

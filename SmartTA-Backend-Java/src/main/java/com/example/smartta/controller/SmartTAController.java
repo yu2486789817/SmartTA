@@ -27,6 +27,7 @@ public class SmartTAController {
     private final PreprocessorService preprocessorService;
     private final TestGeneratorService testGeneratorService;
     private final DocGeneratorService docGeneratorService;
+    private final GitCommitMessageService gitCommitMessageService;
     private final ModelManager modelManager;
 
     /**
@@ -199,6 +200,40 @@ public class SmartTAController {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "生成测试失败: " + e.getMessage());
             
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
+     * 生成Git提交消息
+     */
+    @PostMapping("/generate_commit_message")
+    public ResponseEntity<Map<String, Object>> generateCommitMessage(
+            @RequestBody Map<String, String> request) {
+        try {
+            String gitDiff = request.getOrDefault("git_diff", "");
+
+            if (gitDiff.isEmpty()) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Git diff内容不能为空");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            log.info("生成Git提交消息 - Diff大小: {} 字符", gitDiff.length());
+            String commitMessage = gitCommitMessageService.generateCommitMessage(gitDiff);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("commit_message", commitMessage);
+            response.put("status", "success");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("生成提交消息失败", e);
+
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "生成提交消息失败: " + e.getMessage());
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
