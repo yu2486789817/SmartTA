@@ -5,7 +5,7 @@ import com.example.smartta.exception.DatabaseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import org.springframework.context.annotation.Lazy;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Files;
@@ -28,6 +28,7 @@ public class ModelManager {
     private final SmartTAProperties properties;
     private final EmbeddingService embeddingService;
     private final VectorStoreService vectorStoreService;
+    private final @Lazy PreprocessorService preprocessorService;
     
     private volatile boolean initialized = false;
 
@@ -59,31 +60,34 @@ public class ModelManager {
     }
 
     /**
-     * 从PDF文件重建数据库
+     * 从PDF文件重建数据库(自动处理)
      */
     private void rebuildDatabaseFromPdfs() {
         log.info("开始从PDF文件重建数据库");
-        
+
         List<String> pdfFiles = findPdfFiles();
-        
+
         if (pdfFiles.isEmpty()) {
             throw new DatabaseException(
-                    "向量数据库不存在且未找到PDF文件。\n" +
-                    "请执行以下操作之一：\n" +
-                    "1. 上传PDF文件到 " + properties.getData().getPdfDir() + "\n" +
-                    "2. 或调用 /add_pdfs 接口上传PDF\n" +
-                    "3. 或手动创建数据库"
+                "向量数据库不存在且未找到PDF文件。\n" +
+                "请上传PDF文件到 " + properties.getData().getPdfDir()
             );
         }
-        
+
         log.info("找到 {} 个PDF文件", pdfFiles.size());
         pdfFiles.stream().limit(5).forEach(pdf -> log.info("  - {}", new File(pdf).getName()));
         if (pdfFiles.size() > 5) {
             log.info("  ... 还有 {} 个文件", pdfFiles.size() - 5);
         }
-        
-        // 注意：实际的PDF处理将在 Preprocessor 中完成
-        log.info("请调用 /add_pdfs 接口处理PDF文件");
+
+        // 直接自动调用PDF处理及入库
+        try {
+            var result = preprocessorService.preprocessPdfs(null, null, pdfFiles);
+            log.info("自动初始化PDF向量库结果: {}", result);
+        } catch (Exception e) {
+            log.error("自动初始化PDF向量库失败", e);
+            throw new RuntimeException("自动初始化PDF向量库失败", e);
+        }
     }
 
     /**

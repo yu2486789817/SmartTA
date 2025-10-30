@@ -50,7 +50,7 @@
                 class="com.example.smartta.GenerateTestAction"
                 text="Generate unit tests"
                 description="Generate unit tests for Java code as required">
-            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="SmartTA.AskQuestion"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="AskSmartTA"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift T"/>
         </action>
     </actions>

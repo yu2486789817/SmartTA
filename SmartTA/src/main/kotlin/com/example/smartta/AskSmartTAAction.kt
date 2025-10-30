@@ -47,6 +47,7 @@ class AskSmartTAAction : AnAction() {
         // 注意: ChatWindowManager.sendMessage 内部已处理线程切换
         ChatWindowManager.sendMessage(MessageType.USER, question)
 
+
         // 3. 异步调用后端获取回答
         // 注意: ChatService.askAsync 内部已处理线程切换
         ChatService.askAsync(question, selectedText) { answer ->

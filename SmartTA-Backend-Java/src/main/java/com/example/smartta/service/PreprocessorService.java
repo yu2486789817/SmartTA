@@ -28,7 +28,8 @@ import java.util.*;
 public class PreprocessorService {
 
     private final SmartTAProperties properties;
-    private final ModelManager modelManager;
+    private final EmbeddingService embeddingService;
+    private final VectorStoreService vectorStoreService;
 
     /**
      * 预处理PDF文件并增量更新向量数据库
@@ -45,11 +46,15 @@ public class PreprocessorService {
             // 单文件模式（上传）
             if (file != null && !file.isEmpty()) {
                 log.info("处理上传的PDF文件: {}", file.getOriginalFilename());
-                
-                // 保存临时文件
+
+                // 使用绝对路径，防止相对路径在不同工作目录下失效
                 String dataDir = properties.getData().getDataDir();
-                Path tempPath = Paths.get(dataDir, file.getOriginalFilename());
-                Files.createDirectories(tempPath.getParent());
+                // 若为相对路径，则转换为绝对路径（本地开发或部署都一致可靠）
+                Path dataDirPath = Paths.get(dataDir).toAbsolutePath();
+                Files.createDirectories(dataDirPath);
+                Path tempPath = dataDirPath.resolve(file.getOriginalFilename());
+
+                log.info("PDF将临时保存到: {}", tempPath.toAbsolutePath());
                 file.transferTo(tempPath.toFile());
 
                 // 处理PDF
@@ -111,11 +116,11 @@ public class PreprocessorService {
 
             if (Files.exists(indexFile)) {
                 // 增量更新
-                modelManager.getVectorStore().addDocuments(allDocs);
-                modelManager.getVectorStore().saveDatabase();
+                vectorStoreService.addDocuments(allDocs);
+                vectorStoreService.saveDatabase();
             } else {
                 // 新建数据库
-                modelManager.getVectorStore().createDatabase(allDocs);
+                vectorStoreService.createDatabase(allDocs);
             }
 
             String message = "Database updated successfully. Added " + allDocs.size() + " new document chunks.";
@@ -150,7 +155,7 @@ public class PreprocessorService {
                     
                     for (String chunk : textChunks) {
                         // 生成嵌入向量
-                        float[] embedding = modelManager.getEmbeddingService().embed(chunk);
+                        float[] embedding = embeddingService.embed(chunk);
                         
                         DocumentChunk doc = new DocumentChunk();
                         doc.setSource(fileName);

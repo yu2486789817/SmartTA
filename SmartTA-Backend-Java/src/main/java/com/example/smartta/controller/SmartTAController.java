@@ -44,7 +44,7 @@ public class SmartTAController {
                     request.getQuestion().length() > 50 ? 
                             request.getQuestion().substring(0, 50) + "..." : 
                             request.getQuestion());
-
+            log.info("收到 contextCode: {}", request.getContextCode());
             // 检索相关上下文
             List<Map<String, String>> retrievedChunks = 
                     retrieverService.retrieveContext(request.getQuestion());
