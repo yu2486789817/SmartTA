@@ -24,7 +24,12 @@ dependencies {
         // Add necessary plugin dependencies for compilation here, example:
         bundledPlugin("com.intellij.java")
     }
-
+    
+    // HTTP 客户端依赖
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // JSON 解析依赖
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 
 intellijPlatform {

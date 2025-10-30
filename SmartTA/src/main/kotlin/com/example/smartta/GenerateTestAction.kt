@@ -120,12 +120,12 @@ class GenerateTestAction : AnAction() {
                             "HTTP错误: ${response.code}"
                         } else {
                             val responseBody = response.body?.string() ?: ""
-                            val jsonResponse = SharedServices.gson.fromJson(responseBody, Map::class.java)
+                            val jsonResponse = SharedServices.gson.fromJson(responseBody, Map::class.java) as? Map<*, *>
 
-                            if (jsonResponse["status"] == "success") {
-                                jsonResponse["test_code"] as? String ?: "未返回测试代码"
+                            if (jsonResponse?.get("status") == "success") {
+                                jsonResponse?.get("test_code") as? String ?: "未返回测试代码"
                             } else {
-                                jsonResponse["error"] as? String ?: "未知错误"
+                                jsonResponse?.get("error") as? String ?: "未知错误"
                             }
                         }
                     } catch (ex: Exception) {
