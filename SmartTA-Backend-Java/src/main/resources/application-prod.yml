@@ -1,0 +1,6 @@
+# Production Configuration
+logging:
+  level:
+    root: INFO
+    com.example.smartta: INFO
+

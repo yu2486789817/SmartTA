@@ -1,0 +1,11 @@
+# Development Configuration
+spring:
+  devtools:
+    restart:
+      enabled: true
+  
+logging:
+  level:
+    root: DEBUG
+    com.example.smartta: DEBUG
+

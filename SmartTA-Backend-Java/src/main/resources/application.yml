@@ -1,0 +1,67 @@
+server:
+  port: 8000
+  max-http-request-size: 100MB
+
+spring:
+  application:
+    name: SmartTA Backend
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+# SmartTA Configuration
+smartta:
+  # API Configuration
+  api:
+    title: SmartTA Backend
+    version: 1.0.0
+    max-request-size: 104857600  # 100MB in bytes
+
+  # Model Configuration
+  model:
+    embedding:
+      model-name: sentence-transformers/all-mpnet-base-v2
+    llm:
+      model-name: deepseek-chat
+      temperature: 0.6
+      max-tokens: 1024
+
+  # DeepSeek API Configuration
+  deepseek:
+    api-key: ${DEEPSEEK_API_KEY:sk-28fee0d3b3ef4d33baa2a5ff04af1b3c}
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+
+  # Data Path Configuration
+  data:
+    pdf-dir: ./data/pdfs
+    db-path: ./data/faiss_index
+    data-dir: ./data
+
+  # RAG Parameters
+  rag:
+    top-k: 3
+    chunk-size: 1000
+    chunk-overlap: 200
+
+  # Session Configuration
+  session:
+    max-conversation-history: 5
+
+  # Timeout Configuration
+  timeout:
+    request-timeout: 120
+    connect-timeout: 10
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.example.smartta: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %level - %msg%n"
+  file:
+    name: smartta.log
+    max-size: 10MB
+    max-history: 30
+

@@ -50,14 +50,14 @@ class UploadSmartTAAction : AnAction() {
                     .build()
 
                 SharedServices.httpClient.newCall(request).execute().use { response ->
-                    val body = response.body?.string() ?: "无返回内容"
+                    val responseBody = response.body?.string() ?: "无返回内容"
                     ApplicationManager.getApplication().invokeLater {
                         // 解析后端返回的 JSON，提取友好的提示信息
                         val message = try {
-                            val json = SharedServices.gson.fromJson(body, Map::class.java)
-                            json["message"]?.toString() ?: json.toString()
+                            val json = SharedServices.gson.fromJson(responseBody, Map::class.java) as? Map<*, *>
+                            json?.get("message")?.toString() ?: json.toString()
                         } catch (e: Exception) {
-                            body
+                            responseBody
                         }
                         ChatWindowManager.sendMessage(MessageType.SYSTEM, message)
                     }
