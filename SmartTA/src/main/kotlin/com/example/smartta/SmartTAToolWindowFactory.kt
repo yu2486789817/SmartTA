@@ -39,17 +39,18 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
 
         // 消息追加函数，支持不同样式和格式
         fun appendMessage(fullMessage: String) {
-            val splitIndex = fullMessage.indexOf(":") + 1
+            val colonIndex = fullMessage.indexOf('：').takeIf { it >= 0 } ?: fullMessage.indexOf(':')
+            val splitIndex = if (colonIndex >= 0) colonIndex + 1 else -1
             if (splitIndex <= 0) {
                 doc.insertString(doc.length, fullMessage + "\n\n", null)
             } else {
-                val prefix = fullMessage.substring(0, splitIndex - 1).trim() + ":"
+                val prefix = fullMessage.substring(0, splitIndex - 1).trim() + fullMessage[colonIndex]
                 val rest = fullMessage.substring(splitIndex).trim()
 
                 val style = when {
-                    prefix.startsWith("You") -> youStyle
+                    prefix.startsWith("用户") -> youStyle
                     prefix.startsWith("SmartTA") -> smarttaStyle
-                    prefix.startsWith("System") -> systemStyle
+                    prefix.startsWith("系统") -> systemStyle
                     else -> null
                 }
 
@@ -57,7 +58,7 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
                 val boldStyle = style?.let { 
                     SimpleAttributeSet(it).apply { 
                         StyleConstants.setBold(this, true)
-                        StyleConstants.setFontSize(this, 14)
+                        StyleConstants.setFontSize(this, 18)
                     }
                 }
                 doc.insertString(doc.length, prefix, boldStyle)
@@ -92,7 +93,7 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
         fun sendQuestion() {
             val question = inputField.text.trim()
             if (question.isNotEmpty()) {
-                appendMessage("You: \n$question\n")
+                appendMessage("用户：\n$question\n")
                 inputField.text = ""
                 askButton.isEnabled = false
                 askButton.text = "Asking..."
@@ -100,7 +101,7 @@ class SmartTAToolWindowFactory : ToolWindowFactory {
                 val json = """{"question": "$question"}"""
                 ChatService.askAsync(json) { answer ->
                     SwingUtilities.invokeLater {
-                        appendMessage("SmartTA: \n$answer")
+                        appendMessage("SmartTA：\n$answer")
                         askButton.isEnabled = true
                         askButton.text = "Ask"
                     }

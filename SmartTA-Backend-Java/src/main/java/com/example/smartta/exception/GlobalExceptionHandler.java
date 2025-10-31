@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(SmartTAException.class)
     public ResponseEntity<Map<String, Object>> handleSmartTAException(SmartTAException ex) {
-        log.error("SmartTA Exception: {} ({})", ex.getMessage(), ex.getErrorCode(), ex);
+        log.error("SmartTA 异常：{} ({})", ex.getMessage(), ex.getErrorCode(), ex);
         
         Map<String, Object> response = new HashMap<>();
         response.put("error", ex.getMessage());
@@ -29,10 +29,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
-        log.error("Unexpected error: ", ex);
+        log.error("未预期的系统错误", ex);
         
         Map<String, Object> response = new HashMap<>();
-        response.put("error", "Internal server error");
+        response.put("error", "服务器内部错误");
         response.put("detail", ex.getMessage());
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

@@ -52,7 +52,7 @@ public class GitCommitMessageService {
      * @return 生成的提交消息
      */
     public String generateCommitMessage(String gitDiff) {
-        log.info("开始生成Git提交消息，diff大小: {} 字符", gitDiff.length());
+        log.info("开始生成Git提交消息，差异大小：{} 字符", gitDiff.length());
 
         if (gitDiff == null || gitDiff.trim().isEmpty()) {
             log.warn("Git diff为空");

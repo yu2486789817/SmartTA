@@ -26,7 +26,7 @@ public class EmbeddingService {
 
     @PostConstruct
     public void init() {
-        log.info("初始化嵌入模型: {}", properties.getModel().getEmbedding().getModelName());
+        log.info("初始化嵌入模型：{}", properties.getModel().getEmbedding().getModelName());
         // 使用 LangChain4j 提供的轻量级嵌入模型
         this.embeddingModel = new AllMiniLmL6V2EmbeddingModel();
         log.info("嵌入模型初始化完成");

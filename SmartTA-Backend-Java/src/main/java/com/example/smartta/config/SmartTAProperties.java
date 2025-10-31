@@ -23,9 +23,9 @@ public class SmartTAProperties {
 
     @Data
     public static class ApiConfig {
-        private String title = "SmartTA Backend";
+        private String title = "SmartTA 后端服务";
         private String version = "1.0.0";
-        private int maxRequestSize = 100 * 1024 * 1024; // 100MB
+        private int maxRequestSize = 100 * 1024 * 1024; // 最大允许请求体约为100MB
     }
 
     @Data

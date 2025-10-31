@@ -52,9 +52,9 @@ object ChatWindowManager {
      */
     fun sendMessage(type: MessageType, message: String) {
         val prefix = when (type) {
-            MessageType.USER -> "You:"
-            MessageType.SMARTTA -> "SmartTA:"
-            MessageType.SYSTEM -> "System:"
+            MessageType.USER -> "用户："
+            MessageType.SMARTTA -> "SmartTA："
+            MessageType.SYSTEM -> "系统："
         }
         appendMessageDirect("$prefix $message")
     }
@@ -71,7 +71,8 @@ object ChatWindowManager {
             val doc: StyledDocument = pane.styledDocument
 
             // 分离前缀和正文
-            val splitIndex = message.indexOf(":") + 1
+            val colonIndex = message.indexOf('：').takeIf { it >= 0 } ?: message.indexOf(':')
+            val splitIndex = if (colonIndex >= 0) colonIndex + 1 else -1
             if (splitIndex <= 0) {
                 // 没有前缀，使用默认样式
                 doc.insertString(doc.length, message + "\n\n", null)
@@ -80,9 +81,9 @@ object ChatWindowManager {
                 val rest = message.substring(splitIndex).trim()
 
                 val style: SimpleAttributeSet? = when {
-                    prefix.startsWith("You") -> userStyle
+                    prefix.startsWith("用户") -> userStyle
                     prefix.startsWith("SmartTA") -> smarttaStyle
-                    prefix.startsWith("System") -> systemStyle
+                    prefix.startsWith("系统") -> systemStyle
                     else -> null
                 }
 

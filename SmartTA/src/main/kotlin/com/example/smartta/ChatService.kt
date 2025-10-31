@@ -37,7 +37,7 @@ object ChatService {
                 override fun onResponse(call: Call, response: Response) {
                     val answer = try {
                         if (!response.isSuccessful) {
-                            "服务器返回错误 ${response.code}"
+                            "服务器返回错误：${response.code}"
                         } else {
                             val respText = response.body?.string() ?: ""
                             SharedServices.gson.fromJson(respText, Answer::class.java).answer

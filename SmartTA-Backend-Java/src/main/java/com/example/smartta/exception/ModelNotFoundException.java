@@ -5,7 +5,7 @@ package com.example.smartta.exception;
  */
 public class ModelNotFoundException extends SmartTAException {
     public ModelNotFoundException(String modelPath) {
-        super("模型文件未找到: " + modelPath, "MODEL_NOT_FOUND");
+        super("模型文件未找到：" + modelPath, "MODEL_NOT_FOUND");
     }
 }
 

@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
- * SmartTA Backend Application
+ * SmartTA 后端应用程序入口
  * 使用优化的模型管理器和会话管理器
- * 
+ *
  * 启动命令：mvn spring-boot:run
  * 或者：java -jar target/smartta-backend-1.0.0.jar
  */

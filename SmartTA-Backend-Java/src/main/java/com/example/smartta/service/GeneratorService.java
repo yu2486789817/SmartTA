@@ -29,7 +29,7 @@ public class GeneratorService {
 
     @PostConstruct
     public void init() {
-        log.info("初始化LLM模型: {}", properties.getModel().getLlm().getModelName());
+        log.info("初始化LLM模型：{}", properties.getModel().getLlm().getModelName());
         
         String apiKey = properties.getDeepseek().getApiKey();
         String baseUrl = properties.getDeepseek().getBaseUrl();
@@ -62,7 +62,7 @@ public class GeneratorService {
     public String getAnswer(String query, List<Map<String, String>> retrievedChunks,
                            String contextCode, String sessionId) {
         
-        log.info("生成答案 - Session ID: {}, Query: {}", sessionId, 
+        log.info("生成答案 - 会话ID: {}, 问题: {}", sessionId, 
                 query.length() > 50 ? query.substring(0, 50) + "..." : query);
 
         // 获取历史对话
@@ -70,7 +70,7 @@ public class GeneratorService {
 
         // 组合课程资料文本
         String contextText = retrievedChunks.stream()
-                .map(chunk -> String.format("[%s, p.%s] %s",
+                .map(chunk -> String.format("[%s，第%s页] %s",
                         chunk.get("source"),
                         chunk.get("page"),
                         chunk.get("content")))
@@ -111,7 +111,7 @@ public class GeneratorService {
         // 更新历史记录
         conversationManager.append(sessionId, query, answer);
 
-        log.info("答案生成完成 - Session ID: {}", sessionId);
+        log.info("答案生成完成 - 会话ID: {}", sessionId);
         return answer;
     }
 }

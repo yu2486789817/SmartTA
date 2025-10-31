@@ -154,13 +154,13 @@ class GitCommitMessageDialog(
             SharedServices.httpClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     e.printStackTrace()
-                    showError("网络请求失败: ${e.message}")
+                    showError("网络请求失败：${e.message}")
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                     try {
                         if (!response.isSuccessful) {
-                            showError("服务器返回错误: ${response.code}")
+                            showError("服务器返回错误：${response.code}")
                             return
                         }
 
@@ -179,14 +179,14 @@ class GitCommitMessageDialog(
 
                     } catch (ex: Exception) {
                         ex.printStackTrace()
-                        showError("解析响应失败: ${ex.message}")
+                        showError("解析响应失败：${ex.message}")
                     }
                 }
             })
 
         } catch (e: Exception) {
             e.printStackTrace()
-            showError("发生未知错误: ${e.message}")
+            showError("发生未知错误：${e.message}")
         }
     }
 
@@ -218,7 +218,7 @@ class GitCommitMessageDialog(
             e.printStackTrace()
             Messages.showErrorDialog(
                 project,
-                "复制失败: ${e.message}",
+                "复制失败：${e.message}",
                 "SmartTA"
             )
         }

@@ -66,7 +66,7 @@ class GitCommitMessageAction : AnAction() {
             e.printStackTrace()
             Messages.showErrorDialog(
                 project,
-                "获取Git信息失败: ${e.message}",
+                "获取Git信息失败：${e.message}",
                 "SmartTA - Git提交消息生成器"
             )
         }

@@ -35,13 +35,13 @@ object DocsGeneratorService {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: java.io.IOException) {
-                ChatWindowManager.sendMessage(MessageType.SYSTEM, "文档生成失败（网络错误）: ${e.message}")
+                ChatWindowManager.sendMessage(MessageType.SYSTEM, "文档生成失败（网络错误）：${e.message}")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!it.isSuccessful) {
-                        ChatWindowManager.sendMessage(MessageType.SYSTEM, "后端返回错误: HTTP ${it.code}")
+                        ChatWindowManager.sendMessage(MessageType.SYSTEM, "后端返回错误：HTTP ${it.code}")
                         return
                     }
 
@@ -68,12 +68,12 @@ object DocsGeneratorService {
                             outFile.writeText(markdown)
 
                             ChatWindowManager.sendMessage(MessageType.SYSTEM, 
-                                "项目文档已生成并保存至:\n${outFile.absolutePath}")
+                                "项目文档已生成并保存至：\n${outFile.absolutePath}")
                         } catch (ioe: Exception) {
-                            ChatWindowManager.sendMessage(MessageType.SYSTEM, "保存文档失败: ${ioe.message}")
+                            ChatWindowManager.sendMessage(MessageType.SYSTEM, "保存文档失败：${ioe.message}")
                         }
                     } catch (ex: Exception) {
-                        ChatWindowManager.sendMessage(MessageType.SYSTEM, "解析后端返回内容失败: ${ex.message}")
+                        ChatWindowManager.sendMessage(MessageType.SYSTEM, "解析后端返回内容失败：${ex.message}")
                     }
                 }
             }

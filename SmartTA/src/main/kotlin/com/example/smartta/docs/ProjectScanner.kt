@@ -16,7 +16,7 @@ object ProjectScanner {
      */
     fun scan(projectPath: String): ProjectInfo {
         val root = File(projectPath)
-        if (!root.exists()) throw IllegalArgumentException("路径不存在: $projectPath")
+        if (!root.exists()) throw IllegalArgumentException("路径不存在：$projectPath")
 
         val javaFiles = root.walkTopDown()
             .filter { it.isFile && it.extension == "java" }

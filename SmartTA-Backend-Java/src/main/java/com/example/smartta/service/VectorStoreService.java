@@ -39,17 +39,17 @@ public class VectorStoreService {
         Path indexFile = Paths.get(dbPath, "index.pkl");
 
         if (!Files.exists(indexFile)) {
-            log.warn("向量数据库不存在: {}", indexFile);
-            throw new DatabaseException("向量数据库不存在: " + indexFile);
+            log.warn("向量数据库不存在：{}", indexFile);
+            throw new DatabaseException("向量数据库不存在：" + indexFile);
         }
 
         try {
-            log.info("加载向量数据库: {}", indexFile);
+            log.info("加载向量数据库：{}", indexFile);
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(indexFile.toFile()))) {
                 documents = (List<DocumentChunk>) ois.readObject();
             }
             isLoaded = true;
-            log.info("向量数据库加载完成，文档数: {}", documents.size());
+            log.info("向量数据库加载完成，文档数量：{}", documents.size());
         } catch (Exception e) {
             throw new DatabaseException("加载向量数据库失败", e);
         }
@@ -64,8 +64,8 @@ public class VectorStoreService {
 
         try {
             Files.createDirectories(indexFile.getParent());
-            
-            log.info("保存向量数据库: {}", indexFile);
+
+            log.info("保存向量数据库：{}", indexFile);
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(indexFile.toFile()))) {
                 oos.writeObject(documents);
             }

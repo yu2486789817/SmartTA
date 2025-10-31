@@ -45,7 +45,7 @@ public class ModelManager {
             
             if (!Files.exists(indexFile)) {
                 log.warn("向量数据库不存在，尝试自动重建");
-                rebuildDatabaseFromPdfs();
+                rebuildDatabaseFromDocuments();
             } else {
                 vectorStoreService.loadDatabase();
             }
@@ -60,41 +60,41 @@ public class ModelManager {
     }
 
     /**
-     * 从PDF文件重建数据库(自动处理)
+     * 从文档文件重建数据库（自动处理）
      */
-    private void rebuildDatabaseFromPdfs() {
-        log.info("开始从PDF文件重建数据库");
+    private void rebuildDatabaseFromDocuments() {
+        log.info("开始从文档文件重建数据库");
 
-        List<String> pdfFiles = findPdfFiles();
+        List<String> documentFiles = findDocumentFiles();
 
-        if (pdfFiles.isEmpty()) {
+        if (documentFiles.isEmpty()) {
             throw new DatabaseException(
-                "向量数据库不存在且未找到PDF文件。\n" +
-                "请上传PDF文件到 " + properties.getData().getPdfDir()
+                "向量数据库不存在且未找到可用文档。\n" +
+                "请在目录 " + properties.getData().getPdfDir() + " 中放置 PDF、DOCX、TXT 或 PPTX 文件"
             );
         }
 
-        log.info("找到 {} 个PDF文件", pdfFiles.size());
-        pdfFiles.stream().limit(5).forEach(pdf -> log.info("  - {}", new File(pdf).getName()));
-        if (pdfFiles.size() > 5) {
-            log.info("  ... 还有 {} 个文件", pdfFiles.size() - 5);
+        log.info("找到 {} 个文档文件", documentFiles.size());
+        documentFiles.stream().limit(5).forEach(doc -> log.info("  - {}", new File(doc).getName()));
+        if (documentFiles.size() > 5) {
+            log.info("  ... 还有 {} 个文件", documentFiles.size() - 5);
         }
 
-        // 直接自动调用PDF处理及入库
+        // 直接自动调用文档处理及入库
         try {
-            var result = preprocessorService.preprocessPdfs(null, null, pdfFiles);
-            log.info("自动初始化PDF向量库结果: {}", result);
+            var result = preprocessorService.preprocessDocuments(null, null, documentFiles);
+            log.info("自动初始化文档向量库结果：{}", result);
         } catch (Exception e) {
-            log.error("自动初始化PDF向量库失败", e);
-            throw new RuntimeException("自动初始化PDF向量库失败", e);
+            log.error("自动初始化文档向量库失败", e);
+            throw new RuntimeException("自动初始化文档向量库失败", e);
         }
     }
 
     /**
-     * 查找可用的PDF文件
+     * 查找可用的文档文件
      */
-    private List<String> findPdfFiles() {
-        List<String> pdfFiles = new ArrayList<>();
+    private List<String> findDocumentFiles() {
+        List<String> documentFiles = new ArrayList<>();
         
         // 获取项目根目录
         String currentDir = System.getProperty("user.dir");
@@ -110,30 +110,34 @@ public class ModelManager {
                 "./data"
         );
         
-        log.info("当前目录: {}", currentDir);
-        log.info("项目根目录: {}", projectRoot.getAbsolutePath());
-        log.info("开始搜索PDF文件...");
+        log.info("当前目录：{}", currentDir);
+        log.info("项目根目录：{}", projectRoot.getAbsolutePath());
+        log.info("开始搜索文档文件...");
         
         for (String dirPath : searchPaths) {
             File dir = new File(dirPath);
             if (dir.exists() && dir.isDirectory()) {
-                File[] pdfs = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".pdf"));
-                if (pdfs != null && pdfs.length > 0) {
-                    log.info("✅ 在 {} 找到 {} 个PDF文件", dir.getAbsolutePath(), pdfs.length);
-                    for (File pdf : pdfs) {
-                        pdfFiles.add(pdf.getAbsolutePath());
+                File[] documents = dir.listFiles((d, name) -> {
+                    String lower = name.toLowerCase();
+                    return lower.endsWith(".pdf") || lower.endsWith(".docx")
+                            || lower.endsWith(".txt") || lower.endsWith(".pptx");
+                });
+                if (documents != null && documents.length > 0) {
+                    log.info("✅ 在 {} 找到 {} 个文档文件", dir.getAbsolutePath(), documents.length);
+                    for (File document : documents) {
+                        documentFiles.add(document.getAbsolutePath());
                     }
-                    return pdfFiles;
+                    return documentFiles;
                 } else {
-                    log.info("  ⚠️  {} 存在但无PDF文件", dir.getAbsolutePath());
+                    log.info("  ⚠️  {} 存在但没有文档文件", dir.getAbsolutePath());
                 }
             } else {
                 log.debug("  ❌ {} 不存在", dirPath);
             }
         }
         
-        log.warn("❌ 未找到PDF文件");
-        return pdfFiles;
+        log.warn("❌ 未找到文档文件");
+        return documentFiles;
     }
 
     /**

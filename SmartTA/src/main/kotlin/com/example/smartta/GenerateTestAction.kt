@@ -28,13 +28,13 @@ class GenerateTestAction : AnAction() {
         // 分析选中的元素
         when (psiElement) {
             is PsiClass -> {
-                className = psiElement.name ?: "UnknownClass"
+                className = psiElement.name ?: "未命名类"
                 contextCode = psiElement.text ?: ""
             }
             is PsiMethod -> {
                 methodName = psiElement.name
                 val containingClass = psiElement.containingClass
-                className = containingClass?.name ?: "UnknownClass"
+                className = containingClass?.name ?: "未命名类"
                 contextCode = psiElement.text ?: ""
             }
             else -> {
@@ -50,7 +50,7 @@ class GenerateTestAction : AnAction() {
             val requirement = dialog.getRequirement()
 
             if (requirement.isBlank()) {
-                ChatWindowManager.sendMessage(MessageType.SYSTEM, "错误: 请填写测试需求描述")
+                ChatWindowManager.sendMessage(MessageType.SYSTEM, "错误：请填写测试需求描述")
                 return
             }
 
@@ -60,8 +60,8 @@ class GenerateTestAction : AnAction() {
             toolWindow?.show()
 
             // 显示用户需求和目标信息
-            ChatWindowManager.sendMessage(MessageType.USER, "生成单元测试需求: $requirement")
-            ChatWindowManager.sendMessage(MessageType.SYSTEM, "目标: $className${if (methodName.isNotEmpty()) ".$methodName" else ""}")
+            ChatWindowManager.sendMessage(MessageType.USER, "生成单元测试需求：$requirement")
+            ChatWindowManager.sendMessage(MessageType.SYSTEM, "目标：$className${if (methodName.isNotEmpty()) ".$methodName" else ""}")
 
             // 异步生成测试
             generateTestAsync(requirement, contextCode, className, methodName) { result ->
@@ -74,7 +74,7 @@ class GenerateTestAction : AnAction() {
                 if (isError) {
                     ChatWindowManager.sendMessage(MessageType.SYSTEM, result)
                 } else {
-                    ChatWindowManager.sendMessage(MessageType.SMARTTA, "生成的单元测试:\n```java\n$result\n```")
+                    ChatWindowManager.sendMessage(MessageType.SMARTTA, "生成的单元测试：\n```java\n$result\n```")
                 }
             }
         }
@@ -110,26 +110,26 @@ class GenerateTestAction : AnAction() {
             SharedServices.httpClient.newCall(request).enqueue(object : okhttp3.Callback {
                 override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
                     ApplicationManager.getApplication().invokeLater {
-                        onResult("生成测试失败: ${e.message}")
+                        onResult("生成测试失败：${e.message}")
                     }
                 }
 
                 override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                     val result = try {
                         if (!response.isSuccessful) {
-                            "HTTP错误: ${response.code}"
+                            "HTTP错误：${response.code}"
                         } else {
                             val responseBody = response.body?.string() ?: ""
                             val jsonResponse = SharedServices.gson.fromJson(responseBody, Map::class.java) as? Map<*, *>
 
-                            if (jsonResponse?.get("status") == "success") {
+                            if (jsonResponse?.get("status") == "成功") {
                                 jsonResponse?.get("test_code") as? String ?: "未返回测试代码"
                             } else {
                                 jsonResponse?.get("error") as? String ?: "未知错误"
                             }
                         }
                     } catch (ex: Exception) {
-                        "解析响应失败: ${ex.message}"
+                        "解析响应失败：${ex.message}"
                     }
 
                     ApplicationManager.getApplication().invokeLater {
@@ -140,7 +140,7 @@ class GenerateTestAction : AnAction() {
 
         } catch (e: Exception) {
             ApplicationManager.getApplication().invokeLater {
-                onResult("生成测试时出现错误: ${e.message}")
+                onResult("生成测试时出现错误：${e.message}")
             }
         }
     }

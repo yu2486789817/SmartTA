@@ -88,8 +88,8 @@ public class ConversationManager {
         StringBuilder sb = new StringBuilder();
         synchronized (history) {
             for (ConversationPair pair : history) {
-                sb.append("User: ").append(pair.getQuery()).append("\n");
-                sb.append("SmartTA: ").append(pair.getAnswer()).append("\n");
+                sb.append("用户：").append(pair.getQuery()).append("\n");
+                sb.append("SmartTA：").append(pair.getAnswer()).append("\n");
             }
         }
         

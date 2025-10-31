@@ -45,7 +45,7 @@ public class RetrieverService {
             topK = properties.getRag().getTopK();
         }
 
-        log.debug("检索上下文，查询: {}, topK: {}", query, topK);
+        log.debug("检索上下文，查询内容：{}，返回数量：{}", query, topK);
 
         // 获取查询向量
         float[] queryEmbedding = modelManager.getEmbeddingService().embed(query);
@@ -58,7 +58,7 @@ public class RetrieverService {
         return docs.stream()
                 .map(doc -> {
                     Map<String, String> result = new HashMap<>();
-                    result.put("source", doc.getSource() != null ? doc.getSource() : "unknown");
+                    result.put("source", doc.getSource() != null ? doc.getSource() : "未知来源");
                     result.put("page", doc.getPage() != null ? doc.getPage() : "?");
                     result.put("content", doc.getContent());
                     return result;

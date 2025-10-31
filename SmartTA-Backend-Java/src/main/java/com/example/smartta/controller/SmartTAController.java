@@ -40,12 +40,12 @@ public class SmartTAController {
             String sessionId = request.getSessionId() != null ? 
                     request.getSessionId() : UUID.randomUUID().toString();
             
-            log.info("处理请求 - Session ID: {}, Question: {}...", 
+            log.info("处理请求 - 会话ID: {}, 问题: {}...", 
                     sessionId, 
                     request.getQuestion().length() > 50 ? 
                             request.getQuestion().substring(0, 50) + "..." : 
                             request.getQuestion());
-            log.info("收到 contextCode: {}", request.getContextCode());
+
             // 检索相关上下文
             List<Map<String, String>> retrievedChunks = 
                     retrieverService.retrieveContext(request.getQuestion());
@@ -58,7 +58,7 @@ public class SmartTAController {
                     sessionId
             );
 
-            log.info("回答生成完成 - Session ID: {}", sessionId);
+            log.info("回答生成完成 - 会话ID: {}", sessionId);
 
             return ResponseEntity.ok(new AnswerResponse(answer, sessionId));
 
@@ -72,18 +72,18 @@ public class SmartTAController {
     }
 
     /**
-     * 添加PDF文件到知识库
+     * 添加文档文件到知识库（支持PDF、DOCX、TXT、PPTX等）
      */
-    @PostMapping("/add_pdfs")
-    public ResponseEntity<Map<String, Object>> addPdfs(
+    @PostMapping("/add_documents")
+    public ResponseEntity<Map<String, Object>> addDocuments(
             @RequestParam(required = false) MultipartFile file,
             @RequestParam(required = false) String directory) {
         try {
             Map<String, Object> result;
             
             if (file != null && !file.isEmpty()) {
-                log.info("添加PDF文件: {}", file.getOriginalFilename());
-                result = preprocessorService.preprocessPdfs(file, null, null);
+                log.info("添加文档文件: {}", file.getOriginalFilename());
+                result = preprocessorService.preprocessDocuments(file, null, null);
                 
                 // 重新加载数据库以反映更改
                 modelManager.reloadDatabase();
@@ -92,8 +92,8 @@ public class SmartTAController {
                 return ResponseEntity.ok(result);
             } 
             else if (directory != null && !directory.isEmpty()) {
-                log.info("添加PDF目录: {}", directory);
-                result = preprocessorService.preprocessPdfs(null, directory, null);
+                log.info("添加文档目录: {}", directory);
+                result = preprocessorService.preprocessDocuments(null, directory, null);
                 
                 // 重新加载数据库以反映更改
                 modelManager.reloadDatabase();
@@ -108,11 +108,23 @@ public class SmartTAController {
             }
             
         } catch (Exception e) {
-            log.error("添加PDF失败", e);
+            log.error("添加文档失败", e);
             Map<String, Object> error = new HashMap<>();
-            error.put("error", "处理PDF文件时出错: " + e.getMessage());
+            error.put("error", "处理文档文件时出错：" + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
+    }
+    
+    /**
+     * 添加PDF文件到知识库（保留以兼容旧版本）
+     * @deprecated 使用 /add_documents 替代
+     */
+    @Deprecated
+    @PostMapping("/add_pdfs")
+    public ResponseEntity<Map<String, Object>> addPdfs(
+            @RequestParam(required = false) MultipartFile file,
+            @RequestParam(required = false) String directory) {
+        return addDocuments(file, directory);
     }
 
     /**
@@ -124,7 +136,7 @@ public class SmartTAController {
             boolean isReady = modelManager.isInitialized();
             
             Map<String, Object> response = new HashMap<>();
-            response.put("status", isReady ? "healthy" : "initializing");
+            response.put("status", isReady ? "健康" : "初始化中");
             response.put("timestamp", LocalDateTime.now().toString());
             response.put("model_ready", isReady);
             
@@ -134,7 +146,7 @@ public class SmartTAController {
             log.error("健康检查失败", e);
             
             Map<String, Object> response = new HashMap<>();
-            response.put("status", "unhealthy");
+            response.put("status", "不可用");
             response.put("error", e.getMessage());
             
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
@@ -184,13 +196,13 @@ public class SmartTAController {
                 return ResponseEntity.badRequest().body(error);
             }
 
-            log.info("生成单元测试 - Class: {}, Method: {}", className, methodName);
+            log.info("生成单元测试 - 类名: {}, 方法名: {}", className, methodName);
             String testCode = testGeneratorService.generateUnitTest(
                     requirement, contextCode, className, methodName);
 
             Map<String, Object> response = new HashMap<>();
             response.put("test_code", testCode);
-            response.put("status", "success");
+            response.put("status", "成功");
 
             return ResponseEntity.ok(response);
 
@@ -198,7 +210,7 @@ public class SmartTAController {
             log.error("生成测试失败", e);
             
             Map<String, Object> error = new HashMap<>();
-            error.put("error", "生成测试失败: " + e.getMessage());
+            error.put("error", "生成测试失败：" + e.getMessage());
             
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
@@ -219,12 +231,12 @@ public class SmartTAController {
                 return ResponseEntity.badRequest().body(error);
             }
 
-            log.info("生成Git提交消息 - Diff大小: {} 字符", gitDiff.length());
+            log.info("生成Git提交消息 - 差异大小: {} 字符", gitDiff.length());
             String commitMessage = gitCommitMessageService.generateCommitMessage(gitDiff);
 
             Map<String, Object> response = new HashMap<>();
             response.put("commit_message", commitMessage);
-            response.put("status", "success");
+            response.put("status", "成功");
 
             return ResponseEntity.ok(response);
 
@@ -232,7 +244,7 @@ public class SmartTAController {
             log.error("生成提交消息失败", e);
 
             Map<String, Object> error = new HashMap<>();
-            error.put("error", "生成提交消息失败: " + e.getMessage());
+            error.put("error", "生成提交消息失败：" + e.getMessage());
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }

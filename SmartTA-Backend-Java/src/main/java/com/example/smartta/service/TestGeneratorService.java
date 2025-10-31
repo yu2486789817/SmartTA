@@ -50,7 +50,7 @@ public class TestGeneratorService {
      */
     public String generateUnitTest(String requirement, String contextCode, 
                                    String className, String methodName) {
-        log.info("生成单元测试 - Class: {}, Method: {}", className, methodName);
+        log.info("生成单元测试 - 类名: {}, 方法名: {}", className, methodName);
 
         String prompt = String.format("""
                 你是一个专业的Java开发工程师，专门编写高质量的JUnit单元测试。

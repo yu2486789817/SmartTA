@@ -51,34 +51,34 @@ public class DocGeneratorService {
     public String generateMarkdownSummary(Map<String, Object> projectInfo) {
         log.info("生成项目文档");
 
-        String root = (String) projectInfo.getOrDefault("root", "Unknown Project");
+        String root = (String) projectInfo.getOrDefault("root", "未知项目");
         Integer fileCount = (Integer) projectInfo.getOrDefault("file_count", 0);
         List<Map<String, Object>> files = (List<Map<String, Object>>) projectInfo.getOrDefault("files", List.of());
 
         // 构造简洁摘要
         StringBuilder summaryBuilder = new StringBuilder();
-        summaryBuilder.append("项目路径: ").append(root).append("\n");
+        summaryBuilder.append("项目路径：").append(root).append("\n");
         summaryBuilder.append("共包含 ").append(fileCount).append(" 个 Java 文件。\n");
 
         // 限制前10个文件，防止过长
         int limit = Math.min(files.size(), 10);
         for (int i = 0; i < limit; i++) {
             Map<String, Object> f = files.get(i);
-            summaryBuilder.append("\n文件名: ").append(f.get("file")).append("\n");
+            summaryBuilder.append("\n文件名：").append(f.get("file")).append("\n");
             
             List<String> classes = (List<String>) f.getOrDefault("classes", List.of());
-            summaryBuilder.append("类: ")
-                    .append(classes.isEmpty() ? "无" : String.join(", ", classes))
+            summaryBuilder.append("类：")
+                    .append(classes.isEmpty() ? "无" : String.join("、", classes))
                     .append("\n");
             
             List<String> methods = (List<String>) f.getOrDefault("methods", List.of());
-            summaryBuilder.append("方法: ")
-                    .append(methods.isEmpty() ? "无" : String.join(", ", methods))
+            summaryBuilder.append("方法：")
+                    .append(methods.isEmpty() ? "无" : String.join("、", methods))
                     .append("\n");
             
             List<String> comments = (List<String>) f.getOrDefault("comments", List.of());
             if (!comments.isEmpty()) {
-                summaryBuilder.append("注释摘要:\n");
+                summaryBuilder.append("注释摘要：\n");
                 int commentLimit = Math.min(comments.size(), 3);
                 for (int j = 0; j < commentLimit; j++) {
                     summaryBuilder.append("- ").append(comments.get(j)).append("\n");
