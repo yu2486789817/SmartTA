@@ -1,0 +1,70 @@
+<idea-plugin>
+    <id>com.example.smartta</id>
+    <name>SmartTA</name>
+    <version>1.0.0</version>
+    <vendor email="you@example.com">SmartTA Team</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>Git4Idea</depends>
+
+    <description>
+        SmartTA is an intelligent Teaching Assistant plugin for the Java Enterprise Application Development course.
+        It provides RAG-based Q&amp;A with source citation and context-aware support directly inside IntelliJ IDEA.
+    </description>
+
+    <!-- 注册 Tool Window -->
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="SmartTA"
+                    anchor="right"
+                    factoryClass="com.example.smartta.qa.SmartTAToolWindowFactory"/>
+    </extensions>
+
+    <!-- 注册右键菜单动作 -->
+    <actions>
+        <action id="AskSmartTA"
+                class="com.example.smartta.qa.AskSmartTAAction"
+                text="Ask SmartTA about this code"
+                description="Ask SmartTA for help with selected code"
+                popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="UploadSmartTA"
+                class="com.example.smartta.upload.UploadSmartTAAction"
+                text="Upload to SmartTA"
+                description="Upload selected files or folders to SmartTA knowledge base"
+                popup="true">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="GenerateDocs"
+                class="com.example.smartta.docs.GenerateDocsAction"
+                text="Generate Project Docs"
+                description="Automatically generate structured documentation for this project"
+                popup="true">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+
+        <action id="SmartTA.GenerateTest"
+                class="com.example.smartta.test.GenerateTestAction"
+                text="Generate unit tests"
+                description="Generate unit tests for Java code as required">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="AskSmartTA"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift T"/>
+        </action>
+
+        <action id="SmartTA.GenerateCommitMessage"
+                class="com.example.smartta.git.GitCommitMessageAction"
+                text="Generate Git Commit Message"
+                description="Generate conventional commit message from staged changes"
+                icon="AllIcons.Vcs.CommitNode">
+            <add-to-group group-id="Vcs.MessageActionGroup" anchor="first"/>
+            <add-to-group group-id="VcsGroups" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift G"/>
+        </action>
+    </actions>
+
+
+</idea-plugin>
