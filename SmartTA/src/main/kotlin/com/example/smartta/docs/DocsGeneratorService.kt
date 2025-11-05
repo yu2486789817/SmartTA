@@ -1,8 +1,8 @@
 package com.example.smartta.docs
 
-import com.example.smartta.ChatWindowManager
-import com.example.smartta.MessageType
-import com.example.smartta.SharedServices
+import com.example.smartta.qa.ChatWindowManager
+import com.example.smartta.common.SharedServices
+import com.example.smartta.qa.MessageType
 import okhttp3.*
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File

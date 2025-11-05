@@ -18,13 +18,13 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="SmartTA"
                     anchor="right"
-                    factoryClass="com.example.smartta.SmartTAToolWindowFactory"/>
+                    factoryClass="com.example.smartta.qa.SmartTAToolWindowFactory"/>
     </extensions>
 
     <!-- 注册右键菜单动作 -->
     <actions>
         <action id="AskSmartTA"
-                class="com.example.smartta.AskSmartTAAction"
+                class="com.example.smartta.qa.AskSmartTAAction"
                 text="Ask SmartTA about this code"
                 description="Ask SmartTA for help with selected code"
                 popup="true">
@@ -32,7 +32,7 @@
         </action>
 
         <action id="UploadSmartTA"
-                class="com.example.smartta.UploadSmartTAAction"
+                class="com.example.smartta.upload.UploadSmartTAAction"
                 text="Upload to SmartTA"
                 description="Upload selected files or folders to SmartTA knowledge base"
                 popup="true">
@@ -48,7 +48,7 @@
         </action>
 
         <action id="SmartTA.GenerateTest"
-                class="com.example.smartta.GenerateTestAction"
+                class="com.example.smartta.test.GenerateTestAction"
                 text="Generate unit tests"
                 description="Generate unit tests for Java code as required">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="AskSmartTA"/>
@@ -56,7 +56,7 @@
         </action>
 
         <action id="SmartTA.GenerateCommitMessage"
-                class="com.example.smartta.GitCommitMessageAction"
+                class="com.example.smartta.git.GitCommitMessageAction"
                 text="Generate Git Commit Message"
                 description="Generate conventional commit message from staged changes"
                 icon="AllIcons.Vcs.CommitNode">

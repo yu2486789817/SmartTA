@@ -29,7 +29,7 @@ public class ConversationManager {
      * @param query     用户问题
      * @param answer    回答
      */
-    public void append(String sessionId, String query, String answer) {
+    public void append(String sessionId, String query, String answer, String contextCode) {
         histories.computeIfAbsent(sessionId, k -> {
             ArrayDeque<ConversationPair> deque = new ArrayDeque<>();
             return deque;
@@ -38,7 +38,7 @@ public class ConversationManager {
         Deque<ConversationPair> history = histories.get(sessionId);
         
         synchronized (history) {
-            history.addLast(new ConversationPair(query, answer));
+            history.addLast(new ConversationPair(query, answer, contextCode));
             
             // 限制历史记录长度
             int maxHistory = properties.getSession().getMaxConversationHistory();
@@ -88,6 +88,9 @@ public class ConversationManager {
         StringBuilder sb = new StringBuilder();
         synchronized (history) {
             for (ConversationPair pair : history) {
+                if (pair.getContextCode() != null && !pair.getContextCode().isEmpty()) {
+                    sb.append("代码上下文：\n").append(pair.getContextCode()).append("\n");
+                }
                 sb.append("用户：").append(pair.getQuery()).append("\n");
                 sb.append("SmartTA：").append(pair.getAnswer()).append("\n");
             }
@@ -123,6 +126,6 @@ public class ConversationManager {
     public static class ConversationPair {
         private String query;
         private String answer;
+        private String contextCode; // 新增字段，用于保存代码上下文
     }
 }
-

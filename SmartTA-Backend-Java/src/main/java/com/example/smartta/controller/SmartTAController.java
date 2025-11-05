@@ -37,8 +37,11 @@ public class SmartTAController {
     public ResponseEntity<AnswerResponse> ask(@RequestBody QuestionRequest request) {
         try {
             // 生成或使用现有的会话ID
+            // 如果前端未提供会话ID，则使用一个默认的会话ID，以便累积历史对话
+            // 注意：这会导致所有未提供sessionId的请求共享同一个历史。
+            // 在生产环境中，通常需要前端提供唯一的sessionId或通过其他方式管理用户会话。
             String sessionId = request.getSessionId() != null ? 
-                    request.getSessionId() : UUID.randomUUID().toString();
+                    request.getSessionId() : "default-smartta-session";
             
             log.info("处理请求 - 会话ID: {}, 问题: {}...", 
                     sessionId, 
@@ -250,4 +253,3 @@ public class SmartTAController {
         }
     }
 }
-

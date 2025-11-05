@@ -1,7 +1,7 @@
 package com.example.smartta.docs
 
-import com.example.smartta.ChatWindowManager
-import com.example.smartta.MessageType
+import com.example.smartta.qa.MessageType
+import com.example.smartta.qa.ChatWindowManager
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager

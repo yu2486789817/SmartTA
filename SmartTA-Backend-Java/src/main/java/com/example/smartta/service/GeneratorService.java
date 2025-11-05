@@ -66,6 +66,7 @@ public class GeneratorService {
                 query.length() > 50 ? query.substring(0, 50) + "..." : query);
 
         // 获取历史对话
+        // 获取历史对话
         String historyText = conversationManager.formatHistory(sessionId);
 
         // 组合课程资料文本
@@ -84,6 +85,8 @@ public class GeneratorService {
                 请根据以下内容生成答案：
                 1. 如果课程资料中的内容与问题高度相关，请明确引用出处（例如："见《Lecture 3 - Memory Management》第 12 页"）。
                 2. 如果课程资料与问题不直接相关，请说明"本回答基于一般知识，未引用课程资料"。
+                
+                请务必参考以下历史对话来理解上下文，并在此基础上回答学生的问题。
                 
                 ---
                 课程资料:
@@ -109,10 +112,9 @@ public class GeneratorService {
         String answer = llm.generate(prompt);
 
         // 更新历史记录
-        conversationManager.append(sessionId, query, answer);
+        conversationManager.append(sessionId, query, answer, contextCode);
 
         log.info("答案生成完成 - 会话ID: {}", sessionId);
         return answer;
     }
 }
-

@@ -29,7 +29,7 @@ smartta:
 
   # DeepSeek API Configuration
   deepseek:
-    api-key: ${DEEPSEEK_API_KEY:sk-28fee0d3b3ef4d33baa2a5ff04af1b3c}
+    api-key: ${DEEPSEEK_API_KEY:sk-5473855e245b4647bd5584cde55d9a96}
     base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
 
   # Data Path Configuration
@@ -40,7 +40,7 @@ smartta:
 
   # RAG Parameters
   rag:
-    top-k: 3
+    top-k: 5
     chunk-size: 1000
     chunk-overlap: 200
 

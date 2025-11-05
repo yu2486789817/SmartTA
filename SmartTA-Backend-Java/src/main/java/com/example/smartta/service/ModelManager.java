@@ -96,25 +96,24 @@ public class ModelManager {
     private List<String> findDocumentFiles() {
         List<String> documentFiles = new ArrayList<>();
         
-        // 获取项目根目录
-        String currentDir = System.getProperty("user.dir");
-        File projectRoot = new File(currentDir).getParentFile();
-        
+        // 直接使用 application.yml 中的配置路径
+        String configDataDir = properties.getData().getDataDir();
+        String configPdfDir = properties.getData().getPdfDir();
+
+        // 将配置的路径放入一个列表中进行检查，可以根据需要调整优先级
         List<String> searchPaths = Arrays.asList(
-                projectRoot.getAbsolutePath() + "/SmartTA/src/pdf",
-                currentDir + "/src/pdf",
-                currentDir + "/SmartTA/src/pdf",
-                currentDir + "/../SmartTA/src/pdf",
-                "./src/pdf",
-                "./pdfs",
-                "./data"
+                configDataDir,
+                configPdfDir
         );
         
-        log.info("当前目录：{}", currentDir);
-        log.info("项目根目录：{}", projectRoot.getAbsolutePath());
-        log.info("开始搜索文档文件...");
-        
+        log.info("开始根据配置搜索文档文件...");
+        log.info("配置的数据目录: {}", configDataDir);
+        log.info("配置的PDF目录: {}", configPdfDir);
+
         for (String dirPath : searchPaths) {
+            if (dirPath == null || dirPath.isEmpty()) {
+                continue;
+            }
             File dir = new File(dirPath);
             if (dir.exists() && dir.isDirectory()) {
                 File[] documents = dir.listFiles((d, name) -> {
@@ -123,20 +122,21 @@ public class ModelManager {
                             || lower.endsWith(".txt") || lower.endsWith(".pptx");
                 });
                 if (documents != null && documents.length > 0) {
-                    log.info("✅ 在 {} 找到 {} 个文档文件", dir.getAbsolutePath(), documents.length);
+                    log.info("✅ 在配置的目录 {} 中找到 {} 个文档文件", dir.getAbsolutePath(), documents.length);
                     for (File document : documents) {
                         documentFiles.add(document.getAbsolutePath());
                     }
+                    // 找到后即可返回，避免重复加载
                     return documentFiles;
                 } else {
-                    log.info("  ⚠️  {} 存在但没有文档文件", dir.getAbsolutePath());
+                    log.info("  ⚠️  配置的目录 {} 存在，但没有找到支持的文档文件", dir.getAbsolutePath());
                 }
             } else {
-                log.debug("  ❌ {} 不存在", dirPath);
+                log.debug("  ❌ 配置的目录 {} 不存在", dirPath);
             }
         }
         
-        log.warn("❌ 未找到文档文件");
+        log.warn("❌ 在所有配置的目录中均未找到可用的文档文件");
         return documentFiles;
     }
 
@@ -162,4 +162,3 @@ public class ModelManager {
         return embeddingService;
     }
 }
-
